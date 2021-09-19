@@ -1,42 +1,48 @@
-package com.company;
+package com.s;
 import java.io.*;
 import java.net.*;
-import java.util.Scanner;
-
 public class Main {
-    static Socket server;
+    static ServerSocket server;
+    static Socket ss;
     static DataInputStream dne;
-    static DataOutputStream dout;
-    static Scanner s;
-    static void connect(String hostname,int port) throws Exception{
-        server = new Socket(hostname,port);
+    static FileWriter fw;
+    static void connect() throws Exception{
+        server = new ServerSocket(8008);
+        ss = server.accept();
         System.out.println("Connected");
     }
-    static void sendFile(File file) throws Exception{
-        s = new Scanner(file);
-        dout = new DataOutputStream(server.getOutputStream());
-//        String post = s.nextLine();
+    static void receiveFile() throws Exception{
+        File file = new File("Post.java");
+        file.createNewFile();
+        dne = new DataInputStream(ss.getInputStream());
+//        fw = new FileWriter(file);
+//        String post = dne.readUTF();
 //        System.out.println(post);
-//        dout.writeUTF(post);
-//        dout.flush();
-        BufferedReader br = new BufferedReader(new FileReader(file));
+//        fw.write(post);
+//        fw.flush();
+        fw = new FileWriter(file);
+        BufferedReader br = new BufferedReader(new InputStreamReader(ss.getInputStream()));
         String post;
-        while((post=br.readLine())!=null){
-            dout.writeUTF(post);
-            dout.flush();
+        try{
+            while ((post=dne.readUTF())!=null){
+                fw.write(post);
+                fw.flush();
+            }
         }
+        catch (Exception e){
+            System.out.println("done");
+        }
+
+
 
     }
     public static void main(String[] args) {
         try{
-            connect("Gamer",8008);
-            File fi = new File("C:\\Users\\callr\\Downloads\\gitproj\\idk\\IDK\\src\\rawClient.java");
-            sendFile(fi);
-            System.out.println("done");
+            connect();
+            receiveFile();
         }
         catch (Exception e){
             e.printStackTrace();
         }
-
     }
 }
